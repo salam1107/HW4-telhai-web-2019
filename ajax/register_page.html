@@ -18,7 +18,6 @@ $(document).ready(function(){
     $("form").submit(function(e){
         e.preventDefault();
     });
-
     $("#goto_login_btn").click(function(){
         $.ajax({
             url: "./ajax/login_page.html",
@@ -30,7 +29,6 @@ $(document).ready(function(){
             }
         });
     });
-
     $("#register_btn").click(function(){
         $("#login_msg").html('<img src="./images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
         let email = $("#remail").val();
