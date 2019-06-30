@@ -6,6 +6,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     </head>
     <body>
+        
         <div id="top_bar">
             <button id="logout_btn">Logout</button>
             <button id="home_btn">Home</button>
@@ -134,6 +135,7 @@ $(document).ready(function(){
                     $("#weather_div").append(weather_div);
                     if(i == 0)
                         $(".one_day_weather").trigger("click");
+                    
                 }
             }
         });
@@ -248,8 +250,7 @@ $(document).ready(function(){
                 y = d;
                 let min = data.list[i].main.temp-273.15;
                 let max = data.list[i].main.temp-273.15;
-                for(let x=0; x<d; x++)
-                {
+                for(let x=0; x<d; x++) {
                     if(i+x == 40)
                         break;
                     var temp = data.list[i+x].main.temp-273.15;
@@ -257,7 +258,7 @@ $(document).ready(function(){
                         max = temp;
                     if(temp < min)
                         min = temp;
-                }
+                    }
                 var weather_div = 
                 '<div class="one_day_weather" list_id="'+i+'">'+
                 '<span id="day_name">'+days[new Date(data.list[i].dt_txt).getDay()]+'</span>'+
