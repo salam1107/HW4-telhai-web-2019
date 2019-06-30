@@ -24,7 +24,7 @@ $(document).ready(function(){
         $.ajax({
             url: "./ajax/login_page.html",
             beforeSend: function(){
-                $('#login_div').html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
+                $('#login_div').html('<img src="./images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
             },
             success: function(rt){
                 $("#login_div").html(rt);
@@ -33,7 +33,7 @@ $(document).ready(function(){
     });
 
     $("#register_btn").click(function(){
-        $("#login_msg").html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
+        $("#login_msg").html('<img src="./images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
         let email = $("#remail").val();
         let password = $("#rpassword").val();
         let re_password = $("#rrepassword").val();
