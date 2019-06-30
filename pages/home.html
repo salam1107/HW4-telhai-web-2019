@@ -66,14 +66,14 @@ $(document).ready(function(){
             else
                 current_city = "Qiryat Shemona";
             city_name = current_city;
-            $('#weather_div').html('<img src="/images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">');
+            $('#weather_div').html('<img src="../images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">');
             $('#weather_title_city').text(current_city);
             current_location_weather();
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             current_city = "Qiryat Shemona";
             city_name = current_city;
-            $('#weather_div').html('<img src="/images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">');
+            $('#weather_div').html('<img src="../images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">');
             $('#weather_title_city').text(current_city);
             current_location_weather();
         }
@@ -152,7 +152,7 @@ $(document).ready(function(){
         if($(this).val() != '')
         {
             $('#search_results').slideDown(100);
-            $('#search_results').html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table; padding: 20px;">');
+            $('#search_results').html('<img src="../images/loading.gif" width=30px style="margin: 0 auto; display: table; padding: 20px;">');
             delay(function()
             {
                 $.ajax({
@@ -202,7 +202,7 @@ $(document).ready(function(){
             url: link_url,
             type: "GET",
             beforeSend: function(){
-                $("#hours_details").html('<img src="/images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">');
+                $("#hours_details").html('<img src="../images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">');
             },
             success: function(data)
             {
@@ -241,7 +241,7 @@ $(document).ready(function(){
         type: "GET",
         beforeSend: function()
         {
-            $('#weather_div').html('<img src="/images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">'); 
+            $('#weather_div').html('<img src="../images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">'); 
             $('#weather_title_city').text(city_name);
         },
         success: function(data)
