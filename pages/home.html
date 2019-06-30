@@ -103,7 +103,7 @@ $(document).ready(function(){
     function current_location_weather()
     {
         $.ajax({
-            url: "http://api.openweathermap.org/data/2.5/forecast?q="+current_city+"&APPID=60675b3b86e2708d50e9d1ece1aed702",
+            url: "https://api.openweathermap.org/data/2.5/forecast?q="+current_city+"&APPID=60675b3b86e2708d50e9d1ece1aed702",
             type: "GET",
             success: function(data)
             {
@@ -195,9 +195,9 @@ $(document).ready(function(){
         $("#hours_details").css("margin-left", "0px");
         var link_url = '';
         if(city_id == '')
-            link_url = "http://api.openweathermap.org/data/2.5/forecast?q="+current_city+"&APPID=60675b3b86e2708d50e9d1ece1aed702";
+            link_url = "https://api.openweathermap.org/data/2.5/forecast?q="+current_city+"&APPID=60675b3b86e2708d50e9d1ece1aed702";
         else
-            link_url = "http://api.openweathermap.org/data/2.5/forecast?id="+city_id+"&APPID=60675b3b86e2708d50e9d1ece1aed702";
+            link_url = "https://api.openweathermap.org/data/2.5/forecast?id="+city_id+"&APPID=60675b3b86e2708d50e9d1ece1aed702";
         $.ajax({
             url: link_url,
             type: "GET",
@@ -219,7 +219,7 @@ $(document).ready(function(){
                     var weather_div = 
                     '<div class="one_day_weather_details">'+
                     '<span id="day_name">'+time_format(new Date(data.list[j].dt_txt).getHours())+':'+time_format(new Date(data.list[j].dt_txt).getMinutes())+'</span>'+
-                    '<img id="weather_icon" src="http://openweathermap.org/img/w/'+data.list[j].weather[0].icon+'.png" />'+
+                    '<img id="weather_icon" src="https://openweathermap.org/img/w/'+data.list[j].weather[0].icon+'.png" />'+
                     '<span id="weather_description">'+data.list[j].weather[0].description+'</span><br/>'+
                     '<span id="weather_max_temp">'+(data.list[j].main.temp-273.15).toFixed(0)+'&#8451;</span>'+
                     '</div>';
@@ -237,7 +237,7 @@ $(document).ready(function(){
         city_id = country_id;
         city_name = $(this).attr("city");
         $.ajax({
-        url: "http://api.openweathermap.org/data/2.5/forecast?id="+country_id+"&APPID=60675b3b86e2708d50e9d1ece1aed702",
+        url: "https://api.openweathermap.org/data/2.5/forecast?id="+country_id+"&APPID=60675b3b86e2708d50e9d1ece1aed702",
         type: "GET",
         beforeSend: function()
         {
@@ -268,7 +268,7 @@ $(document).ready(function(){
                 var weather_div = 
                 '<div class="one_day_weather" list_id="'+i+'">'+
                 '<span id="day_name">'+days[new Date(data.list[i].dt_txt).getDay()]+'</span>'+
-                '<img id="weather_icon" src="http://openweathermap.org/img/w/'+data.list[i].weather[0].icon+'.png" />'+
+                '<img id="weather_icon" src="https://openweathermap.org/img/w/'+data.list[i].weather[0].icon+'.png" />'+
                 '<span id="weather_description">'+data.list[i].weather[0].description+'</span>'+
                 '<span id="weather_max_temp">'+max.toFixed(0)+'&#8451;</span>'+
                 '<div id="vr" style="height: '+(max-min)*5+'px;"></div>'+
