@@ -15,14 +15,14 @@
         </div>
         <div id="right_bar">
             <span id="prev_order_title">Previous Orders</span>
-            <div id="prev_orders"><img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table; padding: 20px;"></div>
+            <div id="prev_orders"><img src="../images/loading.gif" width=30px style="margin: 0 auto; display: table; padding: 20px;"></div>
         </div>
         <div id="left_bar">
             <span id="left_order_title">Personal Information</span>
             <img id="profile_pic" src="../images/loading.gif" />
             <input id="upload_file_input" type="file" accept="image/*"/>
             <button id="change_pic_btn">Change profile picture</button>
-            <span id="personal_email">Email: <span id="personal_email_span" style="font-weight: 400;"><img src="/images/loading.gif" width=16px></span></span>
+            <span id="personal_email">Email: <span id="personal_email_span" style="font-weight: 400;"><img src="../images/loading.gif" width=16px></span></span>
         </div>
         <div id="hotel_filter">
             <div class="hotel_filter_opt">
@@ -135,7 +135,7 @@ $(document).ready(function(){
 
     function view_hotels()
     {
-        let search_url = "http://engine.hotellook.com/api/v2/cache.json?location="+location+"&checkIn="+check_in+"&checkOut="+check_out+"&currency=ILS&limit=100";
+        let search_url = "https://engine.hotellook.com/api/v2/cache.json?location="+location+"&checkIn="+check_in+"&checkOut="+check_out+"&currency=ILS&limit=100";
         if(adults != 2)
             search_url += "&adults="+adults;
         if(children != 0)
@@ -146,7 +146,7 @@ $(document).ready(function(){
             type: "GET",
             cache: false,
             beforeSend: function(){
-                $("#hotels_div").html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table; padding: 20px;">'); 
+                $("#hotels_div").html('<img src="../images/loading.gif" width=30px style="margin: 0 auto; display: table; padding: 20px;">'); 
             },
             success: function(data){
                 $("#hotels_div").html('');
@@ -254,7 +254,7 @@ $(document).ready(function(){
     var order_json;
 
     $("#hotels_div").on("click", ".hotel_preview", function(){
-        if($("#prev_orders").children("img").attr("src") == "/images/loading.gif")
+        if($("#prev_orders").children("img").attr("src") == "../images/loading.gif")
             return;
         $("#rent_car_cb").prop('checked', false);
         $("#rent_car_text").text('No');
