@@ -1,0 +1,413 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="../css/top_bar.css">
+        <link rel="stylesheet" type="text/css" href="../css/hotels.css">
+        <link rel="stylesheet" type="text/css" href="../css/right_bar.css">
+        <link rel="stylesheet" type="text/css" href="../css/left_bar.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <div id="top_bar">
+            <button id="logout_btn">Logout</button>
+            <button id="home_btn">Home</button>
+        </div>
+        <div id="right_bar">
+            <span id="prev_order_title">Previous Orders</span>
+            <div id="prev_orders"><img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table; padding: 20px;"></div>
+        </div>
+        <div id="left_bar">
+            <span id="left_order_title">Personal Information</span>
+            <img id="profile_pic" src="../images/loading.gif" />
+            <input id="upload_file_input" type="file" accept="image/*"/>
+            <button id="change_pic_btn">Change profile picture</button>
+            <span id="personal_email">Email: <span id="personal_email_span" style="font-weight: 400;"><img src="/images/loading.gif" width=16px></span></span>
+        </div>
+        <div id="hotel_filter">
+            <div class="hotel_filter_opt">
+                <span>Check-in Date</span>
+                <br/>
+                <input class="filter_input" id="check_in_date" type="date" />
+            </div>
+            <div class="hotel_filter_opt">
+                <span>Check-out Date</span>
+                <br/>
+                <input class="filter_input" id="check_out_date" type="date" />
+            </div>
+            <div class="hotel_filter_opt">
+                <br/>
+                <select id="adults_opt" class="filter_input">
+                    <option value="1">1 adults</option>
+                    <option value="2" selected>2 adults</option>
+                    <option value="3">3 adults</option>
+                    <option value="4">4 adults</option>
+                </select>
+            </div>
+            <div class="hotel_filter_opt">
+                <br/>
+                <select id="children_opt" class="filter_input">
+                    <option value="0" selected>No children</option>
+                    <option value="1">1 child</option>
+                    <option value="2">2 children</option>
+                    <option value="3">3 children</option>
+                    <option value="4">4 children</option>
+                </select>
+            </div>
+            <div class="hotel_filter_opt">
+                <span>At lease stars</span>
+                <br/>
+                <select id="stars_opt" class="filter_input">
+                    <option value="-1">All</option>
+                    <option value="0">0 Star</option>
+                    <option value="1">1 Star</option>
+                    <option value="2">2 Star</option>
+                    <option value="3">3 Star</option>
+                    <option value="4">4 Star</option>
+                    <option value="5">5 Star</option>
+                </select>
+            </div>
+            <button id="search_btn">Search</button>
+        </div>
+        <span id="search_message"></span>
+        <span id="search_for_city">Hotels in <span id="search_city_name" style="font-weight: bold;"></span></span>
+        <div id="hotels_div"></div>
+        <div id="hotel_viewer">
+            <div id="bg_opacity"></div>
+            <div id="hotel_viewer_div">
+                <span id="viewer_hotel_name"></span>
+                <div id="viewer_details">
+                    <div id="left">
+                        <span>Location</span>
+                        <span>Stars</span>
+                        <span>Price</span>
+                        <span>Check-in Date</span>
+                        <span>Check-out Date</span>
+                        <span>Rent car</span>
+                    </div>
+                    <div id="right">
+                        <span id="viewer_hotel_location"></span>
+                        <span id="viewer_hotel_stars"></span>
+                        <span id="viewer_hotel_price"></span>
+                        <span id="viewer_hotel_check_in"></span>
+                        <span id="viewer_hotel_check_out"></span>
+                        <span><input id="rent_car_cb" type="checkbox"/><span id="rent_car_text" style="display: inline; ">No</span></span>
+                    </div>
+                </div>
+                <span id="order_msg"></span>
+                <button id="order_btn">Order</button>
+            </div>
+        </div>
+    </body>
+</html>
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase.js"></script>
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyCNtFrfoj4XG3fF2WiApcKwchcsuPOJolQ",
+    authDomain: "traveling-5e947.firebaseapp.com",
+    databaseURL: "https://traveling-5e947.firebaseio.com",
+    projectId: "traveling-5e947",
+    storageBucket: "traveling-5e947.appspot.com",
+    messagingSenderId: "648604669519",
+    appId: "1:648604669519:web:23d8b329b9dfd14f"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+<script>
+$(document).ready(function(){
+    var root = firebase.database().ref();
+    var orders = root.child('orders');
+    var logged_email;
+
+    var location = localStorage.getItem('city');
+    $("#search_city_name").text(location);
+    
+    var today_date = new Date();
+    var dd = number_format(today_date.getDate());
+    var mm = number_format(today_date.getMonth()+1);
+    var yyyy = today_date.getFullYear();
+
+    var check_in = yyyy+'-'+mm+'-'+dd; //default today
+    var check_out = yyyy+'-'+mm+'-'+dd; //default today
+    var adults = 2; //default 2
+    var children = 0; //default 0
+    var stars = -1; //default -1 (All)
+
+    function view_hotels()
+    {
+        let search_url = "http://engine.hotellook.com/api/v2/cache.json?location="+location+"&checkIn="+check_in+"&checkOut="+check_out+"&currency=ILS&limit=100";
+        if(adults != 2)
+            search_url += "&adults="+adults;
+        if(children != 0)
+            search_url += "&children="+children;
+        search_url += "&token=7976ad6f9afe4fa289c07f7821e1c72e";
+        $.ajax({
+            url: search_url,
+            type: "GET",
+            cache: false,
+            beforeSend: function(){
+                $("#hotels_div").html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table; padding: 20px;">'); 
+            },
+            success: function(data){
+                $("#hotels_div").html('');
+                let date1 = new Date(check_in);
+                let date2 = new Date(check_out);
+                let diffTime = Math.abs(date2.getTime() - date1.getTime());
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+                let results_count = 0;
+                for(let i=0; i<data.length; i++)
+                {
+                    if(data[i].stars < stars)
+                        continue;
+                    results_count++;
+                    var new_hotel_div = 
+                    '<div class="hotel_preview">'+
+                    '<span id="hotel_name">'+data[i].hotelName+'</span>'+
+                    '<span id="hotel_location"><i class="material-icons" style="font-size: 15px;">place</i>'+data[i].location.name+', '+data[i].location.country+'</span>'+
+                    '<div id="hotel_right_info">'+
+                    '<span id="hotel_nights">'+diffDays+' nights, '+adults+' adults'+((children!=0)?', '+children+' children':'')+'</span><br/>'+
+                    '<span id="hotel_price_night">'+data[i].priceAvg.toLocaleString()+' &#8362;</span>'+
+                    '</div>'+
+                    '<div id="hotel_stars" stars="'+data[i].stars+'">';
+                    for(let star=0; star<5; star++)
+                    {
+                        if(star < data[i].stars)
+                            new_hotel_div += '<span class="fa fa-star checked"></span>';
+                        else
+                            new_hotel_div += '<span class="fa fa-star"></span>';
+                    }
+                    new_hotel_div += '</div>'+
+                    '</div>';
+                    $("#hotels_div").append(new_hotel_div);
+                }
+                if(results_count == 0)
+                    $("#hotels_div").html('<span style="margin: 0 auto; display: table;">No results found</span>');
+            },
+            error: function(error){
+                $("#hotels_div").html('<span style="margin: 0 auto; display: table;">No results found</span>');
+            }
+        });
+    }
+
+    orders.on('value', function(snapshot){
+        let count = 0;
+        $("#prev_orders").html('');
+        snapshot.forEach(function(order)
+        {
+            let email = order.val().Client_email;
+            if(email == logged_email)
+            {
+                count++;
+                $("#prev_orders").append(create_right_bar_prev_div(order.val().Hotel_name, order.val().Check_in, order.val().Check_out, order.val().Car_included));
+            }
+        })
+        if(count == 0)
+            $("#prev_orders").text('You have no previous orders...');
+    });
+
+    view_hotels();
+
+    $("#check_in_date").attr("min", yyyy+'-'+mm+'-'+dd);
+    $("#check_in_date").val(yyyy+'-'+mm+'-'+dd);
+    $("#check_out_date").attr("min", yyyy+'-'+mm+'-'+dd);
+    $("#check_out_date").val(yyyy+'-'+mm+'-'+dd);
+
+    $("#check_in_date").change(function(){
+        $("#check_out_date").attr("min", $("#check_in_date").val());
+        $("#check_out_date").val($("#check_in_date").val());
+    });
+
+    function number_format(n){
+        return n > 9 ? "" + n: "0" + n;
+    }
+
+    $("#search_btn").click(function(){
+        let check_in_date = $("#check_in_date").val();
+        let check_out_date = $("#check_out_date").val();
+        if(check_in_date == '')
+        {
+            $("#search_message").text('Please fill check-in date.');
+            $("#check_in_date").css('border', '1px solid red');
+        }
+        else if(check_out_date == '')
+        {
+            $("#search_message").text('Please fill check-out date.');
+            $("#check_in_date").css('border', '1px solid gray');
+            $("#check_out_date").css('border', '1px solid red');
+        }
+        else
+        {
+            $("#search_message").text('');
+            $("#check_out_date").css('border', '1px solid gray');
+            let a = $("#adults_opt").val();
+            let c = $("#children_opt").val(); 
+            let s = $("#stars_opt").val();
+            check_in = check_in_date;
+            check_out = check_out_date;
+            adults = a;
+            children = c;
+            stars = s;
+            view_hotels();
+        }
+    });
+
+    var order_json;
+
+    $("#hotels_div").on("click", ".hotel_preview", function(){
+        if($("#prev_orders").children("img").attr("src") == "/images/loading.gif")
+            return;
+        $("#rent_car_cb").prop('checked', false);
+        $("#rent_car_text").text('No');
+        $("#order_msg").text('');
+        order_car_rent = 'No';
+        let hotel_name = $(this).children("#hotel_name").text();
+        let hotel_location = $(this).children("#hotel_location").text();
+        let hotel_price = $(this).children("#hotel_right_info").children("#hotel_price_night").text();
+        let hotel_stars = $(this).children("#hotel_stars").attr("stars");
+        hotel_location = hotel_location.substring(5);
+        order_json = {
+            "Client_email" : firebase.auth().currentUser.email,
+            "Hotel_name" : hotel_name,
+            "Hotel_location" : hotel_location,
+            "Hotel_price" : hotel_price,
+            "Hotel_stars" : hotel_stars,
+            "Check_in" : check_in,
+            "Check_out" : check_out
+        }
+        $("#viewer_hotel_name").text(hotel_name);
+        $("#viewer_hotel_location").text(hotel_location);
+        let stars_div = '<div>';
+        for(let i=0; i<5; i++)
+        {
+            if(i< hotel_stars)
+                stars_div += '<span class="fa fa-star checked"></span>';
+            else
+                stars_div +='<span class="fa fa-star"></span>';
+        }
+        stars_div += '</div>';
+        $("#viewer_hotel_stars").html(stars_div);
+        $("#viewer_hotel_price").text(hotel_price);
+        $("#viewer_hotel_check_in").text(check_in);
+        $("#viewer_hotel_check_out").text(check_out);
+        $("#hotel_viewer").show(400);
+    });
+
+    $("#bg_opacity").click(function(){
+        $("#hotel_viewer").hide(400);
+    });
+
+    $("#rent_car_cb").change(function(){
+        if($(this).is(":checked"))
+            $("#rent_car_text").text('Yes');
+        else
+            $("#rent_car_text").text('No');
+    });
+
+    $("#order_btn").click(function(){
+        order_json.Car_included = $("#rent_car_text").text();
+        if(check_order_availability())
+            orders.push(order_json);
+        else
+            $("#order_msg").text('order denied: you have previous order in these dates.');
+    });
+
+    function check_order_availability()
+    {
+        let return_val = true;
+        orders.on('value', function(snapshot){
+            snapshot.forEach(function(order)
+            {
+                let check_in_date1 = new Date(order_json.Check_in);
+                let check_in_date2 = new Date(order.val().Check_in);
+                let check_out_date1 = new Date(order_json.Check_out);
+                let check_out_date2 = new Date(order.val().Check_out);
+                if(check_in_date1 <= check_in_date2 && check_out_date1 >= check_in_date2)
+                    return_val = false;
+                else if(check_in_date1 <= check_out_date2 && check_out_date1 >= check_out_date2)
+                    return_val = false;
+                else if(check_in_date1 >= check_in_date2 && check_out_date1 <= check_out_date2)
+                    return_val = false;
+                else if(check_in_date1 <= check_in_date2 && check_out_date1 >= check_out_date2)
+                    return_val = false;
+            });
+        });
+        return return_val;
+    }
+
+    function create_right_bar_prev_div(name, from, to, car)
+    {
+        let order = '<div class="prev_order">'+
+            '<div id="left">'+
+                '<span>Hotel:</span>'+
+                '<span>From Date:</span>'+
+                '<span>To Date:</span>'+
+                '<span>Rented car:</span>'+
+            '</div>'+
+            '<div id="right">'+
+                '<span>'+name+'</span>'+
+                '<span>'+from+'</span>'+
+                '<span>'+to+'</span>'+
+                '<span>'+car+'</span>'+
+            '</div>'+
+        '</div>';
+        return order;
+    }
+
+    $("#logout_btn").click(function(){
+        firebase.auth().signOut();
+    });
+
+    $("#home_btn").click(function(){
+        window.location.href = "./home.html";
+    });
+
+    $("#change_pic_btn").click(function(){
+        $("#upload_file_input").trigger('click');
+    });
+
+    $("#upload_file_input").change(function(e){
+        var file = e.target.files[0];
+        var storageRef = firebase.storage().ref('profile_pictures/'+file.name);
+        var task = storageRef.put(file);
+        task.on('state_changed',
+            function progress(snapshot)
+            {
+                $("#profile_pic").attr("src", "../images/loading.gif");
+            },
+            function error(err){
+
+            },
+            function complete(){
+                task.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                    $("#profile_pic").attr("src", downloadURL);
+                    var userNow = firebase.auth().currentUser;
+                    userNow.updateProfile({
+                        photoURL: downloadURL
+                    }).then(function() {
+                        var photoURL = userNow.photoURL;
+                    }, function(error) {
+
+                    });
+                });
+            }
+        );
+    });
+
+    firebase.auth().onAuthStateChanged(user =>{
+        if(user)
+        {
+            logged_email = user.email;
+            $("#personal_email_span").html(logged_email);
+            if(user.photoURL != null)
+                $("#profile_pic").attr("src", user.photoURL);
+            else
+                $("#profile_pic").attr("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQMAAADCCAMAAAB6zFdcAAAAM1BMVEXFzeD////Byt7L0uPByd7Q1+b7/P3v8fbj5/De4+3r7vTFzuD19/rEzd/T2efn6/LZ3upU0t6bAAAFG0lEQVR4nO2dAYKqMAxEIRQQQeD+p/0F/buyq66kA2Vi3wns2KRJmoYsSyQSicRRkRuxf0ccRFxWjqeh9pyHNvbP2R3/v5dNXeXffJQG074vT12+pPwUY/DLb/tm+Ln+PO+yz5DA//3jufq1/Imzi/3jdsELUD9cv6f6hE0g0p+fCeA52ddA2uaxCfxntK6BFMNLATyDbQ2keGUEXw7B7Ml48Vbw5x6w7hKkeVMBT21SBCl+x0Kv7KGwFyTIaY0CE4O1YLFdtQlu9JZEkEKhgKexYw/S6ySwcz5cZNRK4J2CjZ0QIoGRHFLKEAm8CAbMQekOLYkgmkNxyYncHNaHRg8gT6aDLWGmiL2MENzTgtkqqkvshQQQeCZ8QVxWEcw2yKmtASUBbz1hTdHkL1g3AiA2+II1exKcBHlHqkGbNEgaZFgNaC8hkRqwJk5ADfKkQZ6T2gLybEwaeGIvRgtSA9ZGNaQGpAkDpojErQGqgsKsgfqKLWlgSoOgSzYbGoRdNCYNzGgALCcmDZIGSYOkQdIgaWBCA0T/BbsGaR8kDSZSrJxy54mkQdJgItUTkwYTH28LIu7Tz0Ypm+H1k96VtI7u1hXZkzbTVR1bC4JAN8EVtmvXLTRgcwnQ3gNWDTbYB2XsRa3EJVvIHPpcINQAfjbmhOcC7PnGN2xBknt35IVhDbDFxBm6OBFbTJzhe88DLR7M0D1luSAb96+Msde0GnygSDc16QJ64npH7CWtB3vbmHO+4kA7Rcb3vmiHwOcS8VFS7PWowG4EzpEg+rFID6jYksYboSNxDEiALKQUlJYwAfMIrC99M2CcxJcyfoOqsHMeCldQVUW6tPkOVFWxj72QAOSdUcJvQLwNUE6R2SWinvNwD0xL89JAkSJfUX0BJIFmPhknEOVlblOARAjkppAhmhS5T4WJYK9YCfMEyZngahL/NgjOm2gHZC0Ii5OY06VvgmIE6lThDqfPHqvYvx2GOkiw4QyuaHNo4lrqb5Q5tCUNtG7Rikec0NqCKQ2U3YrMNfWfaBtzLGmgjZdNaaCTwJQG2kmKjD1Iz9A2IljSQHvNYEgDdeZoSQPtYwb2qvod6rzRkAbqumpjRwN1X1LSwJAGTtQPPhu+B/+PkPLcqVv0uurMftmYAbowDJQUw++d6c9HRENS7DWEgmhQZHvy/4twCegvXRE9WexBAuIFA7lTdIinLOQFNXXSvCD2KgJBSMBtDJhtwL0RUB+lIT4ZUJ37zDkDbgQC4zvfGeAbz5qzVVWKBvlJ256vmuJK9AiIqsmYVBCBKzDjVeCQwQtw2mBe3JV6LI4vgxTbCXClG49tE1KgIoKXDId9Ab6VF3hEXR7RJET6DaYFPqcbj6aCyLirAhNVcyQVJGs2doRPVBgOYhIiLXoa1BrO8WXY0xE+Ia5nuMRwAw+oTm0sFeIawZJzESGzFHxWFEbX72wS4g5hBEt2zSxdpLPwb4adHIO0G4wNhlGX2zuGndKiALqNIwZXHMsRPsa7x80UEAoFJrqN5s9Ke3QruKfG1xgumTtOQPQeA/qkdP1BT8NXQJNraVkcwZIKl05hP9y+KxWmmUkyzk1wA3FESEnoCRYE39zDR4ZHIPCYbI+XHioIEUEKdju4oW9+B85Hjox+pAiqnegAqIdJGDGEGd3hgP+QRlRUw8qhX6SNj+bJ7BYfnYuKYiMYcohX1nf8WogPl6xv9Nziu3uRWT19bovvcEZm9aChLb5JG5tna/0Hd2xSPCeFCUQAAAAASUVORK5CYII=");
+        }
+        else
+        {
+            window.location.href = "../../";
+        }
+    });
+
+});
+</script>
