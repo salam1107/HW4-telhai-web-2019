@@ -1,0 +1,429 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="../css/top_bar.css">
+        <link rel="stylesheet" type="text/css" href="../css/home.css">
+        <link rel="stylesheet" type="text/css" href="../css/left_bar.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <div id="top_bar">
+            <button id="logout_btn">Logout</button>
+            <button id="home_btn">Home</button>
+        </div>
+        <div id="left_bar">
+            <span id="left_order_title">Personal Information</span>
+            <img id="profile_pic" src="../images/loading.gif" />
+            <input id="upload_file_input" type="file" accept="image/*"/>
+            <button id="change_pic_btn">Change profile picture</button>
+            <span id="personal_email">Email: <span id="personal_email_span" style="font-weight: 400;"><img src="/images/loading.gif" width=16px></span></span>
+        </div>
+        <div id="search_div">
+            <input id="search_input" type="search" placeholder="Search city" autocomplete="off"/>
+            <div id="search_results"></div>
+        </div>
+        <span id="weather_title">Weather in <span id="weather_title_city"></span></span>
+        <div id="top_weather_div">
+            <button class="slide_left_btn" id="slide_left_btn"><</button>
+            <div id="weather_div"></div>
+            <button class="slide_right_btn" id="slide_right_btn">></button>
+        </div>
+        <div id="weather_more_information">
+            <button id="toggle_slide">Hide details</button>
+            <button class="slide_left_btn" id="slide_left_btn2"><</button>
+            <div id="hours_details"></div>
+            <button class="slide_right_btn" id="slide_right_btn2">></button>
+        </div>
+        <button id="search_hotels_btn">Perfect city? let's search for a perfect hotel</button>
+    </body>
+</html>
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase.js"></script>
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyCNtFrfoj4XG3fF2WiApcKwchcsuPOJolQ",
+    authDomain: "traveling-5e947.firebaseapp.com",
+    databaseURL: "https://traveling-5e947.firebaseio.com",
+    projectId: "traveling-5e947",
+    storageBucket: "traveling-5e947.appspot.com",
+    messagingSenderId: "648604669519",
+    appId: "1:648604669519:web:23d8b329b9dfd14f"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+<script>
+$(document).ready(function(){
+
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var current_city = '';
+    var city_id = '';
+    var city_name = '';
+
+    $.ajax({
+        url: "https://ipinfo.io/json?token=15856ae32c7179",
+        type: "GET",
+        success: function(response){
+            if(isExist(response.city))
+                current_city = response.city;
+            else
+                current_city = "Qiryat Shemona";
+            city_name = current_city;
+            $('#weather_div').html('<img src="/images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">');
+            $('#weather_title_city').text(current_city);
+            current_location_weather();
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            current_city = "Qiryat Shemona";
+            city_name = current_city;
+            $('#weather_div').html('<img src="/images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">');
+            $('#weather_title_city').text(current_city);
+            current_location_weather();
+        }
+    });
+
+    function isExist(city)
+    {
+        var return_val = false;
+        $.ajax({
+            url: "../json/city.list.json",
+            type: "GET",
+            success: function(data)
+            {
+                for(let i=0; i<data.length; i++)
+                {
+                    if(data[i].name == city)
+                    {
+                        return_val = true;
+                        break;
+                    }
+                }
+            }
+        });
+        return return_val;
+    }
+
+    function current_location_weather()
+    {
+        $.ajax({
+            url: "http://api.openweathermap.org/data/2.5/forecast?q="+current_city+"&APPID=60675b3b86e2708d50e9d1ece1aed702",
+            type: "GET",
+            success: function(data)
+            {
+                $('#weather_div').html('');
+                let y = 8;
+                for(let i=0; i<40; i+=y)
+                {
+                    let hour = new Date(data.list[i].dt_txt).getHours();
+                    let d = (24-hour)/3;
+                    y = d;
+                    let min = data.list[i].main.temp-273.15;
+                    let max = data.list[i].main.temp-273.15;
+                    for(let x=0; x<d; x++)
+                    {
+                        if(i+x == 40)
+                            break;
+                        var temp = data.list[i+x].main.temp-273.15;
+                        if(temp > max)
+                            max = temp;
+                        if(temp < min)
+                            min = temp;
+                    }
+                    var weather_div = 
+                    '<div class="one_day_weather" list_id="'+i+'">'+
+                    '<span id="day_name">'+days[new Date(data.list[i].dt_txt).getDay()]+'</span>'+
+                    '<img id="weather_icon" src="http://openweathermap.org/img/w/'+data.list[i].weather[0].icon+'.png" />'+
+                    '<span id="weather_description">'+data.list[i].weather[0].description+'</span>'+
+                    '<span id="weather_max_temp">'+max.toFixed(0)+'&#8451;</span>'+
+                    '<div id="vr" style="height: '+(max-min)*5+'px;"></div>'+
+                    '<span id="weather_min_temp">'+min.toFixed(0)+'&#8451;</span>'+
+                    '</div>';
+                    $("#weather_div").append(weather_div);
+                    if(i == 0)
+                        $(".one_day_weather").trigger("click");
+                }
+            }
+        });
+    }
+
+    $('#search_input').click(function(){
+        if($(this).val() != '')
+            $('#search_results').slideDown(100);
+    });
+
+    $('#search_input').on("change paste keyup", function(){
+        if($(this).val() != '')
+        {
+            $('#search_results').slideDown(100);
+            $('#search_results').html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table; padding: 20px;">');
+            delay(function()
+            {
+                $.ajax({
+                url: "../json/city.list.json",
+                type: "GET",
+                success: function(data)
+                {
+                    let results_btns = '';
+                    let count = 0;
+                    let i;
+                    for(i=0; i<data.length; i++)
+                    {
+                        if(data[i].name.toLowerCase().includes($('#search_input').val().toLowerCase()))
+                        {
+                            if(count == 5)
+                                break; 
+                            count++;
+                            let button = '<button class="search_result_btn" id="'+data[i].id+'" city="'+data[i].name+'">'+data[i].name+' Country: '+data[i].country+'</button>';
+                            results_btns += button;
+                            $("#search_results").html(results_btns);
+                        }
+                    }
+                    if(count == 0)
+                        $("#search_results").html('<span style="margin: 0 auto; display: table; padding: 20px;">City not found..!</span>');
+                }
+            });
+            }, 1000)
+        }
+        if($(this).val() == '')
+            $('#search_results').slideUp(100);
+    });
+
+    function one_day_click_handle()
+    {
+        let self = $(this);
+        $("#toggle_slide").text('Hide details');
+        $("#hours_details").slideDown(100);
+        $("#slide_left_btn2").slideDown(100);
+        $("#slide_right_btn2").slideDown(100); 
+        $("#hours_details").css("margin-left", "0px");
+        var link_url = '';
+        if(city_id == '')
+            link_url = "http://api.openweathermap.org/data/2.5/forecast?q="+current_city+"&APPID=60675b3b86e2708d50e9d1ece1aed702";
+        else
+            link_url = "http://api.openweathermap.org/data/2.5/forecast?id="+city_id+"&APPID=60675b3b86e2708d50e9d1ece1aed702";
+        $.ajax({
+            url: link_url,
+            type: "GET",
+            beforeSend: function(){
+                $("#hours_details").html('<img src="/images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">');
+            },
+            success: function(data)
+            {
+                $("#hours_details").html('');
+                let i = self.attr("list_id");
+                for(let x=0; x<8; x++)
+                {
+                    let j = x+parseInt(i);
+                    if(j == 40)
+                        break;
+                    let hour = new Date(data.list[j].dt_txt).getHours();
+                    if(hour == 0 && x!=0)
+                        break;
+                    var weather_div = 
+                    '<div class="one_day_weather_details">'+
+                    '<span id="day_name">'+time_format(new Date(data.list[j].dt_txt).getHours())+':'+time_format(new Date(data.list[j].dt_txt).getMinutes())+'</span>'+
+                    '<img id="weather_icon" src="http://openweathermap.org/img/w/'+data.list[j].weather[0].icon+'.png" />'+
+                    '<span id="weather_description">'+data.list[j].weather[0].description+'</span><br/>'+
+                    '<span id="weather_max_temp">'+(data.list[j].main.temp-273.15).toFixed(0)+'&#8451;</span>'+
+                    '</div>';
+                    $("#hours_details").append(weather_div);
+                }
+            }
+        });
+    };
+
+    function search_btn_handle()
+    {
+        $('#search_results').slideUp(100);
+        $("#search_input").val('');
+        let country_id = $(this).attr("id");
+        city_id = country_id;
+        city_name = $(this).attr("city");
+        $.ajax({
+        url: "http://api.openweathermap.org/data/2.5/forecast?id="+country_id+"&APPID=60675b3b86e2708d50e9d1ece1aed702",
+        type: "GET",
+        beforeSend: function()
+        {
+            $('#weather_div').html('<img src="/images/loading.gif" width=30px height=30px style="margin: auto; display: table; padding: 20px;">'); 
+            $('#weather_title_city').text(city_name);
+        },
+        success: function(data)
+        {
+            $('#weather_div').html('');
+            let y = 8;
+            for(let i=0; i<40; i+=y)
+            {
+                let hour = new Date(data.list[i].dt_txt).getHours();
+                let d = (24-hour)/3;
+                y = d;
+                let min = data.list[i].main.temp-273.15;
+                let max = data.list[i].main.temp-273.15;
+                for(let x=0; x<d; x++)
+                {
+                    if(i+x == 40)
+                        break;
+                    var temp = data.list[i+x].main.temp-273.15;
+                    if(temp > max)
+                        max = temp;
+                    if(temp < min)
+                        min = temp;
+                }
+                var weather_div = 
+                '<div class="one_day_weather" list_id="'+i+'">'+
+                '<span id="day_name">'+days[new Date(data.list[i].dt_txt).getDay()]+'</span>'+
+                '<img id="weather_icon" src="http://openweathermap.org/img/w/'+data.list[i].weather[0].icon+'.png" />'+
+                '<span id="weather_description">'+data.list[i].weather[0].description+'</span>'+
+                '<span id="weather_max_temp">'+max.toFixed(0)+'&#8451;</span>'+
+                '<div id="vr" style="height: '+(max-min)*5+'px;"></div>'+
+                '<span id="weather_min_temp">'+min.toFixed(0)+'&#8451;</span>'+
+                '</div>';
+                $("#weather_div").append(weather_div);
+                if(i == 0)
+                    $(".one_day_weather").trigger("click");
+            }
+        }
+    });
+    }
+
+    $(window).click(function(e){
+        if(e.target.id != 'search_input')
+            $('#search_results').slideUp(100);
+    });
+
+    var delay = (function()
+    {
+        var timer = 0;
+        return function(callback, ms)
+        {
+            clearTimeout (timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+
+    $("#slide_right_btn").click(function(){
+        if($("#weather_div").css("margin-left") == "-"+parseInt($("#weather_div").width())-parseInt($(this).parent().width()))
+            return;
+        else if(parseInt($("#weather_div").css("margin-left")) - parseInt($(this).parent().width()) < (parseInt($("#weather_div").width())-parseInt($(this).parent().width()))*-1)
+        {
+            $("#weather_div").css("margin-left", "-"+(parseInt($("#weather_div").width())-parseInt($(this).parent().width()))+"px");
+            return;
+        }
+        $("#weather_div").css("margin-left", "-="+$(this).parent().width());
+    });
+
+    $("#slide_right_btn2").click(function(){
+        if($("#hours_details").css("margin-left") == "-"+parseInt($("#hours_details").width())-parseInt($(this).parent().width()))
+            return;
+        else if(parseInt($("#hours_details").css("margin-left")) - parseInt($(this).parent().width()) < (parseInt($("#hours_details").width())-parseInt($(this).parent().width()))*-1)
+        {
+            $("#hours_details").css("margin-left", "-"+(parseInt($("#hours_details").width())-parseInt($(this).parent().width()))+"px");
+            return;
+        }
+        $("#hours_details").css("margin-left", "-="+$(this).parent().width());
+    });
+    
+    $("#slide_left_btn").click(function(){
+        let slide_px = $(this).parent().width();
+        if($("#weather_div").css("margin-left") == "0px")
+            return;
+        else if(parseInt($("#weather_div").css("margin-left")) + parseInt($(this).parent().width()) > 0)
+        {
+            $("#weather_div").css("margin-left", "0px");
+            return;
+        }
+        $("#weather_div").css("margin-left", "+="+$(this).parent().width());
+    });
+
+    $("#slide_left_btn2").click(function(){
+        let slide_px = $(this).parent().width();
+        if($("#hours_details").css("margin-left") == "0px")
+            return;
+        else if(parseInt($("#hours_details").css("margin-left")) + parseInt($(this).parent().width()) > 0)
+        {
+            $("#hours_details").css("margin-left", "0px");
+            return;
+        }
+        $("#hours_details").css("margin-left", "+="+$(this).parent().width());
+    });
+
+    $(window).resize(function() {
+        $("#hours_details").css("margin-left", "0px");
+        $("#weather_div").css("margin-left", "0px");
+    });
+
+    function time_format(n){
+        return n > 9 ? "" + n: "0" + n;
+    }
+
+    $("#search_results").on("mousedown", ".search_result_btn", search_btn_handle);
+    $("#weather_div").on("click", ".one_day_weather", one_day_click_handle);
+
+    $("#toggle_slide").click(function(){
+        if($("#hours_details").css("display") == "inline-flex")
+            $("#toggle_slide").text('Show details');
+        else
+            $("#toggle_slide").text('Hide details');
+        $("#hours_details").slideToggle(100);
+        $("#slide_left_btn2").slideToggle(100);
+        $("#slide_right_btn2").slideToggle(100); 
+    });
+
+    $("#search_hotels_btn").click(function(){
+        localStorage.setItem('city', city_name);
+        window.location.href = './hotels.html';
+    });
+
+    $("#logout_btn").click(function(){
+        firebase.auth().signOut();
+    });
+
+    $("#home_btn").click(function(){
+        window.location.href = "./home.html";
+    });
+
+    $("#change_pic_btn").click(function(){
+        $("#upload_file_input").trigger('click');
+    });
+
+    $("#upload_file_input").change(function(e){
+        var file = e.target.files[0];
+        var storageRef = firebase.storage().ref('profile_pictures/'+file.name);
+        var task = storageRef.put(file);
+        task.on('state_changed',
+            function progress(snapshot)
+            {
+                $("#profile_pic").attr("src", "../images/loading.gif");
+            },
+            function error(err){
+
+            },
+            function complete(){
+                task.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                    $("#profile_pic").attr("src", downloadURL);
+                    var userNow = firebase.auth().currentUser;
+                    userNow.updateProfile({
+                        photoURL: downloadURL
+                    }).then(function() {
+                        var photoURL = userNow.photoURL;
+                    }, function(error) {
+
+                    });
+                });
+            }
+        );
+    });
+
+    firebase.auth().onAuthStateChanged(user =>{
+        if(user)
+        {
+            $("#personal_email_span").html(user.email);
+            if(user.photoURL != null)
+                $("#profile_pic").attr("src", user.photoURL);
+            else
+                $("#profile_pic").attr("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQMAAADCCAMAAAB6zFdcAAAAM1BMVEXFzeD////Byt7L0uPByd7Q1+b7/P3v8fbj5/De4+3r7vTFzuD19/rEzd/T2efn6/LZ3upU0t6bAAAFG0lEQVR4nO2dAYKqMAxEIRQQQeD+p/0F/buyq66kA2Vi3wns2KRJmoYsSyQSicRRkRuxf0ccRFxWjqeh9pyHNvbP2R3/v5dNXeXffJQG074vT12+pPwUY/DLb/tm+Ln+PO+yz5DA//3jufq1/Imzi/3jdsELUD9cv6f6hE0g0p+fCeA52ddA2uaxCfxntK6BFMNLATyDbQ2keGUEXw7B7Ml48Vbw5x6w7hKkeVMBT21SBCl+x0Kv7KGwFyTIaY0CE4O1YLFdtQlu9JZEkEKhgKexYw/S6ySwcz5cZNRK4J2CjZ0QIoGRHFLKEAm8CAbMQekOLYkgmkNxyYncHNaHRg8gT6aDLWGmiL2MENzTgtkqqkvshQQQeCZ8QVxWEcw2yKmtASUBbz1hTdHkL1g3AiA2+II1exKcBHlHqkGbNEgaZFgNaC8hkRqwJk5ADfKkQZ6T2gLybEwaeGIvRgtSA9ZGNaQGpAkDpojErQGqgsKsgfqKLWlgSoOgSzYbGoRdNCYNzGgALCcmDZIGSYOkQdIgaWBCA0T/BbsGaR8kDSZSrJxy54mkQdJgItUTkwYTH28LIu7Tz0Ypm+H1k96VtI7u1hXZkzbTVR1bC4JAN8EVtmvXLTRgcwnQ3gNWDTbYB2XsRa3EJVvIHPpcINQAfjbmhOcC7PnGN2xBknt35IVhDbDFxBm6OBFbTJzhe88DLR7M0D1luSAb96+Msde0GnygSDc16QJ64npH7CWtB3vbmHO+4kA7Rcb3vmiHwOcS8VFS7PWowG4EzpEg+rFID6jYksYboSNxDEiALKQUlJYwAfMIrC99M2CcxJcyfoOqsHMeCldQVUW6tPkOVFWxj72QAOSdUcJvQLwNUE6R2SWinvNwD0xL89JAkSJfUX0BJIFmPhknEOVlblOARAjkppAhmhS5T4WJYK9YCfMEyZngahL/NgjOm2gHZC0Ii5OY06VvgmIE6lThDqfPHqvYvx2GOkiw4QyuaHNo4lrqb5Q5tCUNtG7Rikec0NqCKQ2U3YrMNfWfaBtzLGmgjZdNaaCTwJQG2kmKjD1Iz9A2IljSQHvNYEgDdeZoSQPtYwb2qvod6rzRkAbqumpjRwN1X1LSwJAGTtQPPhu+B/+PkPLcqVv0uurMftmYAbowDJQUw++d6c9HRENS7DWEgmhQZHvy/4twCegvXRE9WexBAuIFA7lTdIinLOQFNXXSvCD2KgJBSMBtDJhtwL0RUB+lIT4ZUJ37zDkDbgQC4zvfGeAbz5qzVVWKBvlJ256vmuJK9AiIqsmYVBCBKzDjVeCQwQtw2mBe3JV6LI4vgxTbCXClG49tE1KgIoKXDId9Ab6VF3hEXR7RJET6DaYFPqcbj6aCyLirAhNVcyQVJGs2doRPVBgOYhIiLXoa1BrO8WXY0xE+Ia5nuMRwAw+oTm0sFeIawZJzESGzFHxWFEbX72wS4g5hBEt2zSxdpLPwb4adHIO0G4wNhlGX2zuGndKiALqNIwZXHMsRPsa7x80UEAoFJrqN5s9Ke3QruKfG1xgumTtOQPQeA/qkdP1BT8NXQJNraVkcwZIKl05hP9y+KxWmmUkyzk1wA3FESEnoCRYE39zDR4ZHIPCYbI+XHioIEUEKdju4oW9+B85Hjox+pAiqnegAqIdJGDGEGd3hgP+QRlRUw8qhX6SNj+bJ7BYfnYuKYiMYcohX1nf8WogPl6xv9Nziu3uRWT19bovvcEZm9aChLb5JG5tna/0Hd2xSPCeFCUQAAAAASUVORK5CYII=");
+        }
+        else
+        {
+            window.location.href = "../../";
+        }
+    });
+
+});
+</script>
