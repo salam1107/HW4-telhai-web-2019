@@ -1,0 +1,48 @@
+<span id="login_title">Login</span>
+<span id="login_msg"></span>
+<form>
+    <input id="lemail" type="email" placeholder="Enter your email"/>
+    <input id="lpassword" type="password" placeholder="Enter your password"/>
+    <button id="login_btn">Login</button>
+</form>
+<div id="hr_or">
+    <hr id="or_hr"/>
+    <span>OR</span>
+</div>
+<button id="goto_register_btn">Register NOW</button>
+<script>
+$(document).ready(function(){
+
+    const auth = firebase.auth();
+
+    $("form").submit(function(e){
+        e.preventDefault();
+    });
+
+    $("#login_btn").click(function(){
+        $("#login_msg").html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
+        let email = $("#lemail").val();
+        let password = $("#lpassword").val();
+        if(email == "" || password == "")
+        {
+            $("#login_msg").text("Please fill out all fields.");
+            return;
+        }
+        const promise = auth.signInWithEmailAndPassword(email, password);
+        promise.catch(e => $("#login_msg").text(e.message));
+    });
+
+    $("#goto_register_btn").click(function(){
+        $.ajax({
+            url: "./ajax/register_page.html",
+            beforeSend: function(){
+                $('#login_div').html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
+            },
+            success: function(rt){
+                $("#login_div").html(rt);
+            }
+        });
+    });
+
+});
+</script>

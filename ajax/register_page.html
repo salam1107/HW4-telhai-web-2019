@@ -1,0 +1,55 @@
+<span id="login_title">Register</span>
+<span id="login_msg"></span>
+<form>
+    <input id="remail" type="email" placeholder="Enter email"/>
+    <input id="rpassword" type="password" placeholder="Enter password"/>
+    <input id="rrepassword" type="password" placeholder="Confirm your password"/>
+    <button id="register_btn">Register</button>
+</form>
+<div id="hr_or">
+    <hr id="or_hr"/>
+    <span>OR</span>
+</div>
+<button id="goto_login_btn">Have an account? Login Here</button>
+<script>
+$(document).ready(function(){
+
+    const auth = firebase.auth();
+
+    $("form").submit(function(e){
+        e.preventDefault();
+    });
+
+    $("#goto_login_btn").click(function(){
+        $.ajax({
+            url: "./ajax/login_page.html",
+            beforeSend: function(){
+                $('#login_div').html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
+            },
+            success: function(rt){
+                $("#login_div").html(rt);
+            }
+        });
+    });
+
+    $("#register_btn").click(function(){
+        $("#login_msg").html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
+        let email = $("#remail").val();
+        let password = $("#rpassword").val();
+        let re_password = $("#rrepassword").val();
+        if(email == "" || password == "" || re_password == "")
+        {
+            $("#login_msg").text("Please fill out all fields.");
+            return;
+        }
+        if(password != re_password)
+        {
+            $("#login_msg").text("Password and Confirm password do not match!");
+            return;
+        }
+        const promise = auth.createUserWithEmailAndPassword(email, password);
+        promise.catch(e => $("#login_msg").text(e.message));
+    });
+
+});
+</script>
