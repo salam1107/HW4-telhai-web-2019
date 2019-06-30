@@ -51,12 +51,10 @@
 </script>
 <script>
 $(document).ready(function(){
-
     var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     var current_city = '';
     var city_id = '';
     var city_name = '';
-
     $.ajax({
         url: "https://ipinfo.io/json?token=15856ae32c7179",
         type: "GET",
@@ -78,7 +76,6 @@ $(document).ready(function(){
             current_location_weather();
         }
     });
-
     function isExist(city)
     {
         var return_val = false;
@@ -99,7 +96,6 @@ $(document).ready(function(){
         });
         return return_val;
     }
-
     function current_location_weather()
     {
         $.ajax({
@@ -142,12 +138,10 @@ $(document).ready(function(){
             }
         });
     }
-
     $('#search_input').click(function(){
         if($(this).val() != '')
             $('#search_results').slideDown(100);
     });
-
     $('#search_input').on("change paste keyup", function(){
         if($(this).val() != '')
         {
@@ -184,7 +178,6 @@ $(document).ready(function(){
         if($(this).val() == '')
             $('#search_results').slideUp(100);
     });
-
     function one_day_click_handle()
     {
         let self = $(this);
