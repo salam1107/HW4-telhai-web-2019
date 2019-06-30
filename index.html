@@ -1,0 +1,45 @@
+<html>
+  <head>
+      <link rel="stylesheet" type="text/css" href="./css/login_page.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div id="background"></div>
+    <div id="login_div"></div>
+  </body>
+</html>
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase.js"></script>
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyCNtFrfoj4XG3fF2WiApcKwchcsuPOJolQ",
+    authDomain: "traveling-5e947.firebaseapp.com",
+    databaseURL: "https://traveling-5e947.firebaseio.com",
+    projectId: "traveling-5e947",
+    storageBucket: "traveling-5e947.appspot.com",
+    messagingSenderId: "648604669519",
+    appId: "1:648604669519:web:23d8b329b9dfd14f"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+<script>
+$(document).ready(function(){
+
+  $.ajax({
+    url: "./ajax/login_page.html",
+    beforeSend: function(){
+      $('#login_div').html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
+    },
+    success: function(rt){
+      $("#login_div").html(rt);
+    }
+  });
+
+  firebase.auth().onAuthStateChanged(function(user){
+    if(user)
+    {
+      window.location.href = "./pages/home.html";
+    }
+  });
+
+});
+</script>
