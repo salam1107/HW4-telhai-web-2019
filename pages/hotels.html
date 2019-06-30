@@ -118,21 +118,17 @@ $(document).ready(function(){
     var root = firebase.database().ref();
     var orders = root.child('orders');
     var logged_email;
-
     var location = localStorage.getItem('city');
     $("#search_city_name").text(location);
-    
     var today_date = new Date();
     var dd = number_format(today_date.getDate());
     var mm = number_format(today_date.getMonth()+1);
     var yyyy = today_date.getFullYear();
-
     var check_in = yyyy+'-'+mm+'-'+dd; //default today
     var check_out = yyyy+'-'+mm+'-'+dd; //default today
     var adults = 2; //default 2
     var children = 0; //default 0
     var stars = -1; //default -1 (All)
-
     function view_hotels()
     {
         let search_url = "https://engine.hotellook.com/api/v2/cache.json?location="+location+"&checkIn="+check_in+"&checkOut="+check_out+"&currency=ILS&limit=100";
@@ -188,7 +184,6 @@ $(document).ready(function(){
             }
         });
     }
-
     orders.on('value', function(snapshot){
         let count = 0;
         $("#prev_orders").html('');
@@ -204,23 +199,18 @@ $(document).ready(function(){
         if(count == 0)
             $("#prev_orders").text('You have no previous orders...');
     });
-
     view_hotels();
-
     $("#check_in_date").attr("min", yyyy+'-'+mm+'-'+dd);
     $("#check_in_date").val(yyyy+'-'+mm+'-'+dd);
     $("#check_out_date").attr("min", yyyy+'-'+mm+'-'+dd);
     $("#check_out_date").val(yyyy+'-'+mm+'-'+dd);
-
     $("#check_in_date").change(function(){
         $("#check_out_date").attr("min", $("#check_in_date").val());
         $("#check_out_date").val($("#check_in_date").val());
     });
-
     function number_format(n){
         return n > 9 ? "" + n: "0" + n;
     }
-
     $("#search_btn").click(function(){
         let check_in_date = $("#check_in_date").val();
         let check_out_date = $("#check_out_date").val();
@@ -250,9 +240,7 @@ $(document).ready(function(){
             view_hotels();
         }
     });
-
     var order_json;
-
     $("#hotels_div").on("click", ".hotel_preview", function(){
         if($("#prev_orders").children("img").attr("src") == "../images/loading.gif")
             return;
