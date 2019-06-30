@@ -17,7 +17,6 @@ $(document).ready(function(){
     $("form").submit(function(e){
         e.preventDefault();
     });
-
     $("#login_btn").click(function(){
         $("#login_msg").html('<img src="./images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
         let email = $("#lemail").val();
@@ -42,6 +41,5 @@ $(document).ready(function(){
             }
         });
     });
-
 });
 </script>
