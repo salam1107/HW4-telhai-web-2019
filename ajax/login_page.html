@@ -20,7 +20,7 @@ $(document).ready(function(){
     });
 
     $("#login_btn").click(function(){
-        $("#login_msg").html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
+        $("#login_msg").html('<img src="./images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
         let email = $("#lemail").val();
         let password = $("#lpassword").val();
         if(email == "" || password == "")
@@ -36,7 +36,7 @@ $(document).ready(function(){
         $.ajax({
             url: "./ajax/register_page.html",
             beforeSend: function(){
-                $('#login_div').html('<img src="/images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
+                $('#login_div').html('<img src="./images/loading.gif" width=30px style="margin: 0 auto; display: table;">');
             },
             success: function(rt){
                 $("#login_div").html(rt);
