@@ -1,0 +1,244 @@
+body
+{
+    background-color: #f2f2f2;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#search_div
+{
+    position: relative;
+    top: 75px;
+    width: 50%;
+    display: table;
+    margin: 0 auto;
+}
+
+#search_input
+{
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px 10px 0px 0px;
+    border: 1px solid grey;
+    outline: none;
+}
+
+#search_results
+{
+    position: absolute;
+    width: 100%;
+    margin: 0 auto;
+    z-index: 2;
+    background-color: white;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 3px 8px;
+    display: none;
+}
+
+#search_results button
+{
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color .3s ease;
+}
+
+#search_results button:hover
+{
+    background-color: #f0f5f7;
+}
+
+#top_weather_div
+{
+    position: relative;
+    top: 115px;
+    width: 40%;
+    height: fit-content;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0px 0px 8px 1px gray;
+    background-color: white;
+    padding: 20px;
+}
+
+#weather_div
+{
+    width: fit-content;
+    min-width: 100%;
+    height: 200px;
+    display: inline-flex;
+    transition: margin-left .5s ease-in-out;
+}
+
+.one_day_weather
+{
+    display: inline-block;
+    margin-right: 5px;
+    margin-left: 5px;
+    width: 150px;
+    height: 100%;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: 1px solid grey;
+    cursor: pointer;
+    transition: transform .2s ease;
+}
+
+.one_day_weather_details
+{
+    display: inline-block;
+    margin-right: 5px;
+    margin-left: 5px;
+    width: 100px;
+    height: 100%;
+    margin-bottom: 20px;
+}
+
+#weather_icon
+{
+    display: table;
+    width: 70px;
+    height: 70px;
+    margin: 0 auto;
+}
+
+#day_name
+{
+    display: table;
+    margin: 0 auto;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+#weather_description
+{
+    font-style: italic;
+    display: table;
+    margin: 0 auto;
+}
+
+#weather_min_temp, #weather_max_temp
+{
+    display: table;
+    margin: 0 auto;
+}
+
+.one_day_weather:hover
+{
+    background-color: #f0f5f7;
+    transform: scale(1.1); 
+}
+
+#vr
+{
+    width: 0px;
+    min-height: 1px;
+    max-height: 35px;
+    height: 0px;
+    border: none;
+    border-left: 1px solid gray;
+    margin: 0 auto;
+    transition: height 1s ease;
+}
+
+#weather_title
+{
+    position: relative;
+    margin: 0 auto;
+    display: table;
+    top: 90px;
+}
+
+#weather_title #weather_title_city
+{
+    font-weight: bold;
+}
+
+#weather_more_information
+{
+    position: relative;
+    top: 150px;
+    width: 40%;
+    margin: 0 auto;
+    border-radius: 10px;
+    box-shadow: 0px 0px 8px 1px gray;
+    background-color: white;
+    padding: 20px;
+    overflow: hidden;
+}
+
+#weather_more_information #hours_details
+{
+    width: fit-content;
+    min-width: 100%;
+    height: 150px;
+    border-top: 1px solid gray;
+    background-color: transparent;
+    margin-top: 10px;
+    display: inline-flex;
+    transition: margin-left .5s ease-in-out;
+}
+
+#weather_more_information #toggle_slide
+{
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
+#search_hotels_btn
+{
+    position: relative;
+    margin: 0 auto;
+    display: table;
+    margin-top: 200px;
+    padding: 20px;
+    background-color: #bd59d4;
+    box-shadow: 0px 0px 10px 0.2px #bd59d4;
+    transition: background-color .4s ease;
+    border: none;
+    border-radius: 30px;
+    color: white;
+    outline: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.slide_left_btn, .slide_right_btn
+{
+    position: absolute;
+    top: calc(50% - 20px);
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    left: 15px;
+    font-size: 20px;
+    opacity: 0.5;
+    z-index: 100;
+    cursor: pointer;
+    outline: none;
+    transition: opacity .4s ease;
+}
+
+.slide_right_btn
+{
+    left: inherit;
+    right: 15px;
+}
+
+.slide_left_btn:hover, .slide_right_btn:hover
+{
+    opacity: 1;
+}
